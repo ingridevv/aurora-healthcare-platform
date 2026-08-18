@@ -1,0 +1,28 @@
+resources:
+  schemas:
+    landing_schema: 
+      catalog_name: ${var.catalog}
+      name: 00_landing
+      comment: "Landing zone for raw, unvalidated source data."
+
+    bronze_schema:
+      catalog_name: ${var.catalog}
+      name: 01_bronze
+      comment: "Raw layer ingestion with historical lineage."
+
+    silver_schema:
+      catalog_name: ${var.catalog}
+      name: 02_silver
+      comment: "Curated layer for cleansed, filtered and enriched data."
+
+    gold_schema:
+      catalog_name: ${var.catalog}
+      name: 03_gold
+      comment: "Business-ready aggregated data products."  
+
+  volumes:
+    landing_volume:
+      catalog_name: ${var.catalog}
+      schema_name: ${resources.schemas.landing_schema.name}
+      name: raw_landing_volume
+      comment: "Landing volume for incoming healthcare data files."
