@@ -5,4 +5,4 @@ __pycache__/
 *.egg-info
 .venv/
 *.vscode
-src/notebooks/ingestion_framework.py
+src/notebooks/ingestion_framework.ipynb
