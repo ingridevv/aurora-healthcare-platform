@@ -1,0 +1,12 @@
+resources:
+    pipelines:
+        healthcare-ingestion-pipeline:
+            name: "Healthcare Ingestion Pipeline"
+            catalog: ${var.catalog}
+            schema: ${resources.schemas.bronze_schema.name}
+
+            libraries:
+                - file:
+                      path: ../src/transformations/healthcare_ingestion_pipeline.py
+
+            serverless: true

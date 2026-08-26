@@ -26,3 +26,9 @@ resources:
       schema_name: ${resources.schemas.landing_schema.name}
       name: raw_landing_volume
       comment: "Landing volume for incoming healthcare data files."
+
+    checkpoints_volume:
+      catalog_name: ${var.catalog}
+      schema_name: ${resources.schemas.bronze_schema.name}
+      name: checkpoints_volume
+      comment: "Managed volume for streaming checkpoints and Auto Loader schemas."
