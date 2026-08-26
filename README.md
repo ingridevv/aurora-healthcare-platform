@@ -80,16 +80,6 @@ Datasets include:
 
 ---
 
-# Data Domains
-
-| Domain      | Entities                                                            |
-| ----------- | ------------------------------------------------------------------- |
-| Master Data | Patients, Providers, Organizations                                  |
-| Clinical    | Encounters, Conditions, Observations, Procedures                    |
-| Treatment   | Medications, CarePlans, Devices, Supplies, Immunizations, Allergies |
-| Financial   | Claims, Payers, Payer Transitions                                   |
-
-
 # Technologies
 
 - Databricks

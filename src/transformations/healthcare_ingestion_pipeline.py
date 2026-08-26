@@ -56,7 +56,7 @@ for entity in entities:
             .option("header", "true") \
             .option("rescuedDataColumn", "_rescued_data") \
             .option("cloudFiles.schemaLocation", f"{checkpoint_path}{e}/_schema") \
-            .load(f"{base_path}/{e}/{e}.csv") \
+            .load(f"{base_path}/{e}") \
             .withColumn("_ingested_at", current_timestamp()) \
             .withColumn("_source_file", col("_metadata.file_path"))
             )
