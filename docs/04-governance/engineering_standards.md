@@ -182,6 +182,15 @@ Domain-specific, aggregate views or tables optimized for end-user reporting.
 | **`retention_days`** | Yes | Integer | `2555` | Data retention SLA in days (e.g., 2555 days / 7 years for HIPAA). |
 | **`tags`** | Optional | Map / List | `{"environment": "prod", "compliance": "hipaa"}` | Key-value tags for Unity Catalog / Dataplex taxonomy. |
 
+#### 4.1 Data Classification
+| Classification | Purpose | Mental Rule | Typical Examples | Encryption Recommended |
+|----------------|---------|-------------|------------------|------------------------|
+| **Public** | Safe for public disclosure. | Anyone can know this information without causing harm. | Hospital name, department, procedure catalogue, country, ICD reference tables | No |
+| **Internal** | Internal operational information. | Company information that does not identify a patient and causes little or no damage if disclosed. | City, State, County, Latitude, Longitude, System Name, Table Name | Optional |
+| **Restricted** | Personally Identifiable Information (PII). | Identifies a patient but does not directly enable fraud. | Patient Name, Birth Date, Gender, Race, Ethnicity, Address, ZIP Code, Phone Number | Recommended |
+| **Confidential** | Highly Sensitive Information. | Enables identity theft, financial fraud, or severe privacy violations if exposed. | SSN, Passport Number, Driver's License Number, Insurance Number, Financial Coverage, Credit Card Information | **Required** |
+
+
 &nbsp;
 ## 5. Business Data Domains
 

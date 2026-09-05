@@ -22,6 +22,10 @@ volumes and tables following Medallion Architecture principles.
 - The detailed standards are maintained in dedicated governance
 documentation.
 
+### ADR-004: Data Contract Design Decision
+- Adopts the Open Data Contract Standard (ODCS) and leverages the Data Contract CLI for validation and artifact generation. 
+- The Aurora Contract Engine extends this foundation with healthcare-specific governance, semantic modeling, and Lakehouse orchestration.
+
 ### ADR-007: IaC via DABs
 - Reproducible deployments for Databricks workflows and resources across environments.
 - Use Declarative Automation Bundles (DABs) to manage pipeline jobs, target catalogs, and environment configurations.

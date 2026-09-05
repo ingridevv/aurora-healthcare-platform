@@ -6,3 +6,4 @@ __pycache__/
 .venv/
 *.vscode
 src/notebooks/ingestion_framework.ipynb
+docs/post-check-continue.md
