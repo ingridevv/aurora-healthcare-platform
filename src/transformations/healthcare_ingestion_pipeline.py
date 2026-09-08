@@ -1,3 +1,12 @@
+################################################# CODE REVIEW #################################################
+# 1. Fix the Delta Live Tables in a for loop, insteadp adopt a factory pattern
+# 2. Remove db.fs.ls call and migrate to config-driven or control-table approach
+# 3. Parameterize the harcoded environment strings; use spark.conf.get() to inject catlaog, schema 
+# and path variables.
+# 4. Explicitly add type inference to prevent csv columns from defaulting to String types. 
+# 5. Optimize logical execution the chained withColumn ops into a single .select()
+############################################################################################################### 
+
 from pyspark import pipelines as dp
 from pyspark.sql.functions import *
 from pyspark.sql.types import *

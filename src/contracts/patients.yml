@@ -1,0 +1,401 @@
+#################################################################################################################
+################################# DATA CONTRACT DESIGN FOR PATIENT DATASET ######################################
+#################################################################################################################
+
+domain: clinical 
+version: 1.1.0 
+status: active
+id: 53581432-6c55-4ba2-a65f-72344a91553a
+
+authoritativeDefinitions:
+- type: canonical
+  url: https://github.com/bitol-io/open-data-contract-standard/blob/main/docs/examples/all/full-example.odcs.yaml
+  description: Canonical URL to the latest version of the contract.
+  
+kind: DataContract
+apiVersion: v3.1.0 
+
+# Infrastructure & servers
+servers:
+  - server: aurora-dev 
+    type: databricks
+    catalog: healthcare_dev
+    schema: 01_bronze
+
+# Dataset, schema, and quality
+schema:
+  - name: patient
+    physicalName: bronze_patients
+    physicalType: table
+    businessName: Core Patients Data
+    description: Provides Master Patients Index.
+    authoritativeDefinitions:
+      - url: https://catalog.data.gov/dataset/air-quality
+        type: businessDefinition
+    tags: ['patients']
+    # Column properties quality
+    properties:
+      - id: patient_id # canonical contract identifier
+        name: patient_id
+        physicalName: Id # name in source system
+        primaryKey: true
+        logicalType: string
+        physicalType: string # data type in source system
+        required: true
+        description: Unique patient identifier
+        partitioned: false
+        classification: restricted
+        quality:
+            - metric: nullValues
+              mustBe: 0
+              description: column should not contain null values
+              dimension: completeness
+            - metric: duplicateValues
+              mustBe: 0 
+              description: Column should not contain duplicated values
+              dimension: uniqueness
+            
+      - id: birth_date
+        name: birth_date
+        physicalName: BIRTHDATE
+        businessName: Patient's Birth Date
+        logicalType: date
+        physicalType: date
+        required: true
+        description: Stores the patient's birth date
+        classification: restricted
+        quality:
+            - id: patient_birthdate_not_null
+              metric: nullValues
+              mustBe: 0
+              description: Column should not contain null values
+              dimension: completeness
+
+            - id: patient_birthdate_valid_format
+              type: custom
+              engine: greatExpectations
+              description: Birth date must follow ISO-8601 format.
+              dimension: validity
+              implementation: |
+                type: expect_column_values_to_match_strftime_format
+                kwargs:
+                  strftime_format: "%Y-%m-%d"  
+
+      - id: death_date
+        name: death_date
+        physicalName: DEATHDATE
+        businessName: Patient's Death Date
+        logicalType: date
+        physicalType: date
+        description: Stores the patient's death date, if exists
+        classification: restricted
+        quality:
+            - id: patient_birthdate_not_null
+              metric: nullValues
+              mustBe: 0
+              description: Column should not contain null values
+              dimension: completeness
+
+            - id: patient_deathdate_valid_format
+              type: custom
+              engine: greatExpectations
+              description: Death date must follow ISO-8601 format.
+              dimension: validity
+              implementation: |
+                type: expect_column_values_to_match_strftime_format
+                kwargs:
+                  strftime_format: "%Y-%m-%d"  
+      
+      - id: social_security_number
+        name: social_security_number
+        physicalName: SSN
+        businessName: Patient Social Security Number (SSN)
+        logicalType: VARCHAR(11)
+        physicalType: string
+        required: true
+        description: Stores the patient's Social Security Number (SSN)
+        classification: confidential
+        quality:
+            - metric: nullValues
+              mustBe: 0
+              description: column should not contain null values
+              dimension: completeness
+            - metric: invalidValues
+              description: Must be a valid SSN
+              pattern: '^(?!000|666|9\d{2})\d{3}-(?!00)\d{2}-(?!0000)\d{4}$'
+              dimension: conformity
+            - metric: duplicateValues
+              description: Column should not contain duplicate values
+              dimension: uniqueness
+
+      - id: drivers
+        name: drivers_license
+        physicalName: DRIVERS
+        businessName: Patient Driver's License Number
+        logicalType: string
+        physicalType: string
+        description: Stores the patient's driver's license identifier issued by the licensing authority
+        classification: confidential
+        quality:
+            - metric: nullValues
+              mustBe: 0
+              description: column should not contain null values
+              dimension: completeness
+            - metric: invalidValues
+              arguments:
+              pattern: '\b[A-Z0-9][A-Z0-9\s-]{3,15}[A-Z0-9]\b'
+              dimension: conformity
+
+
+      - id: passport
+        name: passport_number
+        physicalName: PASSPORT
+        businessName: Patient Passport Number
+        logicalType: string
+        physicalType: string
+        description: Stores the patient's passport number
+        classification: confidential
+        quality:
+            - metric: nullValues
+              mustBe: 0
+              description: column should not contain null values
+              dimension: completeness
+            - metric: invalidValues
+              arguments:
+              pattern: '\b[A-Z0-9][A-Z0-9\s-]{3,15}[A-Z0-9]\b'
+              dimension: conformity
+        
+
+      - id: name_prefix
+        name: name_prefix
+        physicalName: PREFIX
+        businessName: Patient Name Prefix 
+        logicalType: string
+        physicalType: string
+        description: Stores the patient's prefix name
+        classification: internal
+        quality:
+            - metric: invalidValues
+              arguments:
+                validValues: ['Mr.', 'Ms.', 'Mrs.']
+
+      - id: first_name
+        name: first_name
+        physicalName: FIRST
+        businessName: Patient First Name
+        logicalType: string
+        physicalType: string
+        description: Stores the patient's first name
+        classification: internal
+  
+      - id: last_name
+        name: last_name
+        physicalName: LAST
+        businessName: Patient Last Name
+        logicalType: string
+        physicalType: string
+        description: Stores the patient's last name
+        classification: internal
+
+      - id: name_suffix
+        name: name_suffix
+        physicalName: SUFFIX
+        businessName: Patient Suffix Name
+        logicalType: string
+        physicalType: string
+        description: Stores the patient's suffix name
+        classification: internal
+
+      - id: maiden_name
+        name: maiden_name
+        physicalName: MAIDEN
+        businessName: Patient Maiden Name
+        logicalType: string
+        physicalType: string
+        description: Patient's female surname before marriage
+        classification: internal
+
+      - id: marital_status
+        name: marital_status
+        physicalName: MARITAL
+        businessName: Patient Marital Status
+        logicalType: string
+        physicalType: string
+        description: Store's the patient's marital status
+        classification: internal
+        quality:
+            - metric: nullValues
+              mustBe: 0
+              description: column should not contain null values
+              dimension: completeness
+            - metric: invalidValues
+              arguments:
+                validValues: ['S', 'F']
+
+      - id: race
+        name: race
+        physicalName: RACE
+        businessName: Patient Race
+        logicalType: string
+        physicalType: string
+        description: Stores the patient's self-reported race
+        classification: internal
+        quality:
+            - metric: nullValues
+              mustBe: 0
+              description: column should not contain null values
+              dimension: completeness
+            - metric: invalidValues
+              arguments:
+                validValues: ['black', 'white']
+
+      - id: ethnicity
+        name: ethnicity
+        physicalName: ETHNICITY
+        businessName: Patient Ethnicity
+        logicalType: string
+        physicalType: string
+        description: Stores the patient's self-reported ethnicity
+        classification: internal
+        quality:
+            - metric: nullValues
+              mustBe: 0
+              description: column should not contain null values
+              dimension: completeness
+            - metric: invalidValues
+              arguments:
+                validValues: ['hispanic', 'nonhispanic']
+
+      - id: gender
+        name: gender
+        physicalName: GENDER
+        businessName: Patient Gender
+        logicalType: string
+        physicalType: string
+        description: Stores the patient's gender
+        classification: restricted
+        quality:
+            - metric: nullValues
+              mustBe: 0
+              description: column should not contain null values
+              dimension: completeness
+            - metric: invalidValues
+              arguments:
+                validValues: ['M', 'F']
+
+      - id: birth_place
+        name: birth_place
+        physicalName: BIRTHPLACE
+        businessName: Patient Birth Place
+        logicalType: string
+        physicalType: string
+        description: Stores the patient's birth place
+        classification: internal
+
+      - id: address
+        name: address
+        physicalName: ADDRESS
+        businessName: Patient Address
+        logicalType: string
+        physicalType: string
+        description: Store's the patient's address
+        classification: internal
+
+      - id: city
+        name: city
+        physicalName: CITY
+        businessName: Patient City
+        logicalType: string
+        physicalType: string
+        description: Store's the patient's city
+        classification: internal
+
+      - id: state
+        name: state
+        physicalName: STATE
+        businessName: Patient State
+        logicalType: string
+        physicalType: string
+        description: Stores the patient's state
+        classification: internal
+
+      - id: county
+        name: county
+        physicalName: COUNTY
+        businessName: Patient County
+        logicalType: string
+        physicalType: string
+        description: Stores the patient's county
+        classification: internal
+
+      - id: postal_code
+        name: postal_code
+        physicalName: ZIP
+        businessName: Patient Postal Code
+        logicalType: string
+        physicalType: string
+        description: Stores the patient's postal code
+        classification: restricted
+        quality:
+            - metric: nullValues
+              mustBe: 0
+              description: column should not contain null values
+              dimension: completeness
+            - metric: invalidValues
+              arguments:
+              pattern: '\b[A-Z0-9][A-Z0-9\s-]{3,15}[A-Z0-9]\b'
+              dimension: conformity
+
+      - id: latitude
+        name: latitude
+        physicalName: LAT
+        businessName: Latitude
+        logicalType: double
+        physicalType: double
+        description: Stores the patient's residential latitude
+        classification: internal
+        quality:
+            - metric: nullValues
+              mustBe: 0
+              description: column should not contain null values
+              dimension: completeness
+
+      - id: longitude
+        name: longitude
+        physicalName: LON
+        businessName: Longitude
+        logicalType: double
+        physicalType: double
+        description: Stores the patient's residential longitude
+        classification: internal
+
+      - id: healthcare_expenses
+        name: healthcare_expenses
+        physicalName: HEALTHCARE_EXPENSES
+        businessName: Patient Total Healthcare Expenses
+        logicalType: decimal
+        physicalType: decimal(18,2)
+        description: Store's the patient's healthcare expenses
+        classification: confidential
+        quality:
+            - metric: nullValues
+              mustBe: 0
+              description: column should not contain null values
+              dimension: completeness
+
+      - id: healthcare_coverage
+        name: healthcare_coverage
+        physicalName: HEALTHCARE_COVERAGE
+        businessName: Patient Healthcare Coverage Amount
+        logicalType: decimal(18,2)
+        physicalType: string
+        description: Store's the patient's healthcare coverage
+        classification: confidential
+
+
+# Tags
+tags:
+  - patients
+
+# Contract generation date
+contractCreatedTs: "2022-11-15T02:59:43+00:00"
